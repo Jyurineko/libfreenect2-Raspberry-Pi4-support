@@ -159,6 +159,8 @@ struct ShaderProgram : public WithOpenGLESBindings
     }
   }
 
+  //use glsl in src/shader with "#version 300 es"
+
   void setVertexShader(const std::string& src)
   {
     checkMesaBug();
@@ -202,11 +204,10 @@ struct ShaderProgram : public WithOpenGLESBindings
       gl()->glGetShaderInfoLog(vertex_shader, sizeof(error_buffer), NULL, error_buffer);
       //glGetShaderInfoLog(vertex_shader, sizeof(error_buffer), NULL, error_buffer);
 
-      LOG_ERROR << "failed to compile es vertex shader!" << std::endl << error_buffer;
+      LOG_ERROR << "failed to compile es vertex shader![in opengl_depth_packet_pro.cpp]" << std::endl << error_buffer;
     }
 
     gl()->glCompileShader(fragment_shader);
-
     gl()->glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &status);
     //glCompileShader(fragment_shader);
 
@@ -215,7 +216,7 @@ struct ShaderProgram : public WithOpenGLESBindings
     {
       gl()->glGetShaderInfoLog(fragment_shader, sizeof(error_buffer), NULL, error_buffer);
       //glGetShaderInfoLog(fragment_shader, sizeof(error_buffer), NULL, error_buffer);
-      LOG_ERROR << "failed to compile es fragment shader!" << std::endl << error_buffer;
+      LOG_ERROR << "failed to compile es fragment shader![in opengl_depth_packet_pro.cpp]" << std::endl << error_buffer;
     }
 
     program = gl()->glCreateProgram();
@@ -242,7 +243,7 @@ struct ShaderProgram : public WithOpenGLESBindings
     {
       gl()->glGetProgramInfoLog(program, sizeof(error_buffer), NULL, error_buffer);
       //glGetProgramInfoLog(program, sizeof(error_buffer), NULL, error_buffer);
-      LOG_ERROR << "failed to link shader program!" << std::endl << error_buffer;
+      LOG_ERROR << "failed to link shader program![in opengl_depth_packet_pro.cpp]" << std::endl << error_buffer;
     }
     CHECKGL();
   }
@@ -736,9 +737,10 @@ public:
         bl, tl, tr, tr, br, bl
     };
     gl()->glGenBuffers(1, &square_vbo);
+    
     gl()->glGenVertexArrays(1, &square_vao);
-
     gl()->glBindVertexArray(square_vao);
+    
     gl()->glBindBuffer(GL_ARRAY_BUFFER, square_vbo);
     gl()->glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     //glGenBuffers(1, &square_vbo);

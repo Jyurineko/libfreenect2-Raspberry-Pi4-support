@@ -1,4 +1,8 @@
-uniform sampler2DRect Data;
+precision mediump float;
+
+//uniform sampler2DRect Data;
+
+uniform sampler2D Data;
 
 in vec2 TexCoord;
 
@@ -8,5 +12,5 @@ void main(void)
 {
   ivec2 uv = ivec2(TexCoord.x, TexCoord.y);
   
-  Color = texelFetch(Data, uv);
+  Color = texelFetch(Data, uv, 0);
 }

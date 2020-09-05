@@ -48,55 +48,59 @@ void Viewer::initialize()
     gl(es_b);
 
     std::string vertexshadersrc = ""
-        "#version 300 es\n"
-                                                
-        "in vec2 Position;\n"
-        "in vec2 TexCoord;\n"
+        "#version 300 es                                \n"
+        
+        "in vec2 Position;                              \n"
+        "in vec2 TexCoord;                              \n"
                     
-        "out VertexData{\n"
-        "vec2 TexCoord;\n" 
-        "} VertexOut;\n"  
+        "out VertexData{                                \n"
+        "   vec2 TexCoord;                              \n" 
+        "} VertexOut;                                   \n"  
                     
-        "void main(void)\n"
-        "{\n"
-        "    gl_Position = vec4(Position, 0.0, 1.0);\n"
-        "    VertexOut.TexCoord = TexCoord;\n"
-        "}\n";
-    std::string grayfragmentshader = ""
-        "#version 300 es\n"
-        
-        "uniform sampler2DRect Data;\n"
-        
-        "vec4 tempColor;\n"
-        "in VertexData{\n"
-        "    vec2 TexCoord;\n"
-        "} FragmentIn;\n"
-        
-        "layout(location = 0) out vec4 Color;\n"
-        
-        "void main(void)\n"
-        "{\n"
-            "ivec2 uv = ivec2(FragmentIn.TexCoord.x, FragmentIn.TexCoord.y);\n"
-            "tempColor = texelFetch(Data, uv);\n"
-            "Color = vec4(tempColor.x/4500, tempColor.x/4500, tempColor.x/4500, 1);\n"
-        "}\n";
-    std::string fragmentshader = ""
-        "#version 300 es\n"
-        
-        "uniform sampler2DRect Data;\n"
-        
-        "in VertexData{\n"
-        "    vec2 TexCoord;\n"
-        "} FragmentIn;\n"
-       
-        "layout(location = 0) out vec4 Color;\n"
-        
-        "void main(void)\n"
-        "{\n"
-        "    ivec2 uv = ivec2(FragmentIn.TexCoord.x, FragmentIn.TexCoord.y);\n"
+        "void main(void)                                \n"
+        "{                                              \n"
+        "    gl_Position = vec4(Position, 0.0, 1.0);    \n"
+        "    VertexOut.TexCoord = TexCoord;             \n"
+        "}                                              \n";
 
-        "    Color = texelFetch(Data, uv);\n"
-        "}\n";
+    std::string grayfragmentshader = ""
+        "#version 300 es                                                                \n"
+ 
+        //"uniform sampler2DRect Data;                                                    \n"
+        "uniform sampler2D Data;                                                        \n"
+        
+        "vec4 tempColor;                                                           \n"
+        "in VertexData{                                                                 \n"
+        "   vec2 TexCoord;                                                              \n"
+        "} FragmentIn;                                                                  \n"
+        
+        "layout(location = 0) out vec4 Color;                                           \n"
+        
+        "void main(void)                                                                \n"
+        "{                                                                              \n"
+        "   ivec2 uv = ivec2(FragmentIn.TexCoord.x, FragmentIn.TexCoord.y);             \n"
+        "   tempColor = texelFetch(Data, uv, 0);                                           \n"
+        "   Color = vec4(tempColor.x/4500, tempColor.x/4500, tempColor.x/4500, 1);      \n"
+        "}                                                                              \n";
+
+    std::string fragmentshader = ""
+        "#version 300 es                                                            \n"
+        //"precision mediump float;                     \n"
+        //"uniform sampler2DRect Data;                                                \n"
+        "uniform sampler2D Data;                                                    \n"
+
+        "in VertexData{                                                             \n"
+        "    vec2 TexCoord;                                                 \n"
+        "} FragmentIn;                                                              \n"
+       
+        "layout(location = 0) out vec4 Color;                                  \n"
+        
+        "void main(void)                                                            \n"
+        "{                                                                          \n"
+        "    ivec2 uv = ivec2(FragmentIn.TexCoord.x, FragmentIn.TexCoord.y);        \n"
+
+        "    Color = texelFetch(Data, uv, 0);                                          \n"
+        "}                                                                          \n";
 
     renderShader.setVertexShader(vertexshadersrc);
     renderShader.setFragmentShader(fragmentshader);

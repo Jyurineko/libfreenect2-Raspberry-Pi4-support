@@ -1,3 +1,5 @@
+precision mediump float;
+
 struct Parameters
 {
   float ab_multiplier;
@@ -32,8 +34,10 @@ struct Parameters
   float max_depth;
 };
 
-uniform sampler2DRect DepthAndIrSum;
-uniform usampler2DRect MaxEdgeTest;
+//uniform sampler2DRect DepthAndIrSum;
+//uniform usampler2DRect MaxEdgeTest;
+uniform sampler2D DepthAndIrSum;
+uniform usampler2D MaxEdgeTest;
 
 uniform Parameters Params;
 
@@ -44,7 +48,7 @@ in vec2 TexCoord;
 
 void applyEdgeAwareFilter(ivec2 uv)
 {
-  vec2 v = texelFetch(DepthAndIrSum, uv).xy;
+  vec2 v = texelFetch(DepthAndIrSum, uv, 0).xy;
   
   if(v.x >= Params.min_depth && v.x <= Params.max_depth)
   {
@@ -54,7 +58,7 @@ void applyEdgeAwareFilter(ivec2 uv)
     }
     else
     {
-      bool max_edge_test_ok = texelFetch(MaxEdgeTest, uv).x > 0u;
+      bool max_edge_test_ok = texelFetch(MaxEdgeTest, uv, 0).x > 0u;
       
       float ir_sum_acc = v.y, squared_ir_sum_acc = v.y * v.y, min_depth = v.x, max_depth = v.x;
 
@@ -64,7 +68,7 @@ void applyEdgeAwareFilter(ivec2 uv)
         {
           if(yi == 0 && xi == 0) continue;
 
-          vec2 other = texelFetch(DepthAndIrSum, uv + ivec2(xi, yi)).xy;
+          vec2 other = texelFetch(DepthAndIrSum, uv + ivec2(xi, yi), 0).xy;
 
           ir_sum_acc += other.y;
           squared_ir_sum_acc += other.y * other.y;

@@ -1,3 +1,8 @@
+precision mediump float;
+precision highp usampler2D;
+precision highp isampler2D;
+precision highp sampler2D;
+
 struct Parameters
 {
   float ab_multiplier;
@@ -32,12 +37,19 @@ struct Parameters
   float max_depth;
 };
 
-uniform usampler2DRect P0Table0;
-uniform usampler2DRect P0Table1;
-uniform usampler2DRect P0Table2;
-uniform isampler2DRect Lut11to16;
-uniform usampler2DRect Data;
-uniform sampler2DRect ZTable;
+//uniform usampler2DRect P0Table0;
+//uniform usampler2DRect P0Table1;
+//uniform usampler2DRect P0Table2;
+//uniform isampler2DRect Lut11to16;
+//uniform usampler2DRect Data;
+//uniform sampler2DRect ZTable;
+
+uniform usampler2D P0Table0;
+uniform usampler2D P0Table1;
+uniform usampler2D P0Table2;
+uniform isampler2D Lut11to16;
+uniform usampler2D Data;
+uniform sampler2D ZTable;
 
 uniform Parameters Params;
 
@@ -54,7 +66,7 @@ in vec2 TexCoord;
 
 int data(ivec2 uv)
 {
-  return int(texelFetch(Data, uv).x);
+  return int(texelFetch(Data, uv, 0).x);
 }
 
 float decode_data(ivec2 uv, int sub)
@@ -74,12 +86,12 @@ float decode_data(ivec2 uv, int sub)
 
   int lut_idx = (uv.x < 1 || 510 < uv.x || col_idx > 352) ? 0 : ((data(data_idx0) >> upper_bytes) | (data(data_idx1) << lower_bytes)) & 2047;
   
-  return float(texelFetch(Lut11to16, ivec2(int(lut_idx), 0)).x);
+  return float(texelFetch(Lut11to16, ivec2(int(lut_idx), 0), 0).x);
 }
 
-vec2 processMeasurementTriple(in ivec2 uv, in usampler2DRect p0table, in int offset, in float ab_multiplier_per_frq, inout bool saturated)
+vec2 processMeasurementTriple(in ivec2 uv, in usampler2D p0table, in int offset, in float ab_multiplier_per_frq, inout bool saturated)
 {
-  float p0 = -float(texelFetch(p0table, uv).x) * 0.000031 * M_PI;
+  float p0 = -float(texelFetch(p0table, uv, 0).x) * 0.000031 * M_PI;
   
   vec3 v = vec3(decode_data(uv, offset + 0), decode_data(uv, offset + 1), decode_data(uv, offset + 2));
   
@@ -95,7 +107,7 @@ void main(void)
 {
   ivec2 uv = ivec2(TexCoord.x, TexCoord.y);
     
-  bool valid_pixel = 0.0 < texelFetch(ZTable, uv).x;
+  bool valid_pixel = 0.0 < texelFetch(ZTable, uv, 0).x;
   bvec3 saturated = bvec3(valid_pixel);
   
   vec2 ab0 = processMeasurementTriple(uv, P0Table0, 0, Params.ab_multiplier_per_frq.x, saturated.x);
@@ -107,14 +119,25 @@ void main(void)
 #endif
   bvec3 invalid_pixel = bvec3(!valid_pixel);
   
-  A    = mix(vec3(ab0.x, ab1.x, ab2.x), vec3(0.0), invalid_pixel);
-  B    = mix(vec3(ab0.y, ab1.y, ab2.y), vec3(0.0), invalid_pixel);
+  //A    = mix(vec3(ab0.x, ab1.x, ab2.x), vec3(0.0), invalid_pixel);
+  //B    = mix(vec3(ab0.y, ab1.y, ab2.y), vec3(0.0), invalid_pixel);
+  
+  float interpolation_a = 0.5;
+  
+  A = mix(vec3(ab0.x, ab1.x, ab2.x), vec3(0.0), interpolation_a);
+  B = mix(vec3(ab0.y, ab1.y, ab2.y), vec3(0.0), interpolation_a);
+  
   Norm = sqrt(A * A + B * B);
   
-  A = mix(A, vec3(0.0), saturated);
-  B = mix(B, vec3(0.0), saturated);
+  //A = mix(A, vec3(0.0), saturated);
+  //B = mix(B, vec3(0.0), saturated);
   
-  Infrared = min(dot(mix(Norm, vec3(65535.0), saturated), vec3(0.333333333  * Params.ab_multiplier * Params.ab_output_multiplier)), 65535.0);
+  A = mix(A, vec3(0.0), interpolation_a);
+  B = mix(B, vec3(0.0), interpolation_a);
+  
+  //Infrared = min(dot(mix(Norm, vec3(65535.0), saturated), vec3(0.333333333  * Params.ab_multiplier * Params.ab_output_multiplier)), 65535.0);
+  
+  Infrared = min(dot(mix(Norm, vec3(65535.0), interpolation_a), vec3(0.333333333  * Params.ab_multiplier * Params.ab_output_multiplier)), 65535.0);
   
   Debug = vec4(sqrt(vec3(Infrared / 65535.0)), 1.0);
 }

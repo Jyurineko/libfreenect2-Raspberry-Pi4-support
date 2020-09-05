@@ -1,3 +1,5 @@
+precision mediump float;
+
 struct Parameters
 {
   float ab_multiplier;
@@ -32,10 +34,15 @@ struct Parameters
   float max_depth;
 };
 
-uniform sampler2DRect A;
-uniform sampler2DRect B;
-uniform sampler2DRect XTable;
-uniform sampler2DRect ZTable;
+//uniform sampler2DRect A;
+//uniform sampler2DRect B;
+//uniform sampler2DRect XTable;
+//uniform sampler2DRect ZTable;
+
+uniform sampler2D A;
+uniform sampler2D B;
+uniform sampler2D XTable;
+uniform sampler2D ZTable;
 
 uniform Parameters Params;
 
@@ -51,12 +58,19 @@ void main(void)
 {
   ivec2 uv = ivec2(TexCoord.x, TexCoord.y);
       
-  vec3 a = texelFetch(A, uv).xyz;
-  vec3 b = texelFetch(B, uv).xyz;
+  vec3 a = texelFetch(A, uv, 0).xyz;
+  vec3 b = texelFetch(B, uv, 0).xyz;
   
   vec3 phase = atan(b, a);
-  phase = mix(phase, phase + 2.0 * M_PI, lessThan(phase, vec3(0.0)));
-  phase = mix(phase, vec3(0.0), isnan(phase));
+  
+  float interpolation_a = 0.5;
+  
+  //phase = mix(phase, phase + 2.0 * M_PI, lessThan(phase, vec3(0.0)));
+  //phase = mix(phase, vec3(0.0), isnan(phase));
+  
+  phase = mix(phase, phase + 2.0 * M_PI, interpolation_a);
+  phase = mix(phase, vec3(0.0), interpolation_a);
+  
   vec3 ir = sqrt(a * a + b * b) * Params.ab_multiplier;
   
   float ir_sum = ir.x + ir.y + ir.z;
@@ -133,8 +147,8 @@ void main(void)
     phase_final = true/*(modeMask & 2) != 0*/ ? t11 : t10;
   }
   
-  float zmultiplier = texelFetch(ZTable, uv).x;
-  float xmultiplier = texelFetch(XTable, uv).x;
+  float zmultiplier = texelFetch(ZTable, uv, 0).x;
+  float xmultiplier = texelFetch(XTable, uv, 0).x;
 
   phase_final = 0.0 < phase_final ? phase_final + Params.phase_offset : phase_final;
 

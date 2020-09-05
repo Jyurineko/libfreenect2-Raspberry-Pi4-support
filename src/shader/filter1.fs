@@ -1,3 +1,5 @@
+precision mediump float;
+
 struct Parameters
 {
   float ab_multiplier;
@@ -32,9 +34,14 @@ struct Parameters
   float max_depth;
 };
 
-uniform sampler2DRect A;
-uniform sampler2DRect B;
-uniform sampler2DRect Norm;
+//uniform sampler2DRect A;
+//uniform sampler2DRect B;
+//uniform sampler2DRect Norm;
+
+uniform sampler2D A;
+uniform sampler2D B;
+uniform sampler2D Norm;
+
 
 uniform Parameters Params;
 
@@ -50,9 +57,9 @@ void applyBilateralFilter(ivec2 uv)
   vec3 threshold = vec3((Params.joint_bilateral_ab_threshold * Params.joint_bilateral_ab_threshold) / (Params.ab_multiplier * Params.ab_multiplier));
   vec3 joint_bilateral_exp = vec3(Params.joint_bilateral_exp);
   
-  vec3 self_a = texelFetch(A, uv).xyz;
-  vec3 self_b = texelFetch(B, uv).xyz;
-  vec3 self_norm = texelFetch(Norm, uv).xyz;
+  vec3 self_a = texelFetch(A, uv, 0).xyz;
+  vec3 self_b = texelFetch(B, uv, 0).xyz;
+  vec3 self_norm = texelFetch(Norm, uv, 0).xyz;
   vec3 self_normalized_a = self_a / self_norm;
   vec3 self_normalized_b = self_b / self_norm;
   
@@ -62,8 +69,10 @@ void applyBilateralFilter(ivec2 uv)
   
   bvec3 c0 = lessThan(self_norm * self_norm, threshold);
   
-  threshold = mix(threshold, vec3(0.0), c0);
-  joint_bilateral_exp = mix(joint_bilateral_exp, vec3(0.0), c0);
+  float interpolation_a = 0.5;
+  
+  threshold = mix(threshold, vec3(0.0), interpolation_a);
+  joint_bilateral_exp = mix(joint_bilateral_exp, vec3(0.0), interpolation_a);
   
   for(int y = 0; y < 3; ++y)
   {
@@ -71,9 +80,9 @@ void applyBilateralFilter(ivec2 uv)
     {
       ivec2 ouv = uv + ivec2(x - 1, y - 1);
     
-      vec3 other_a = texelFetch(A, ouv).xyz;
-      vec3 other_b = texelFetch(B, ouv).xyz;
-      vec3 other_norm = texelFetch(Norm, ouv).xyz;
+      vec3 other_a = texelFetch(A, ouv, 0).xyz;
+      vec3 other_b = texelFetch(B, ouv, 0).xyz;
+      vec3 other_norm = texelFetch(Norm, ouv, 0).xyz;
       
       vec3 other_normalized_a = other_a / other_norm;
       vec3 other_normalized_b = other_b / other_norm;
@@ -81,22 +90,22 @@ void applyBilateralFilter(ivec2 uv)
       bvec3 c1 = lessThan(other_norm * other_norm, threshold);
       
       vec3 dist = 0.5f * (1.0f - (self_normalized_a * other_normalized_a + self_normalized_b * other_normalized_b));
-      vec3 weight = mix(Params.gaussian_kernel[x][y] * exp(-1.442695 * joint_bilateral_exp * dist), vec3(0.0), c1);
+      vec3 weight = mix(Params.gaussian_kernel[x][y] * exp(-1.442695 * joint_bilateral_exp * dist), vec3(0.0), interpolation_a);
       
       weighted_a_acc.xyz += weight * other_a;
       weighted_b_acc.xyz += weight * other_b;
       weight_acc.xyz += weight;
       
       // TODO: this sucks, but otherwise opengl reports error: temporary registers exceeded :(
-      weighted_a_acc.w += mix(dist.x, 0, c1.x);
-      weighted_b_acc.w += mix(dist.y, 0, c1.y);
-      weight_acc.w += mix(dist.z, 0, c1.z);
+      weighted_a_acc.w += mix(dist.x, 0, 0.5);//c1.x);
+      weighted_b_acc.w += mix(dist.y, 0, 0.5);//c1.y);
+      weight_acc.w += mix(dist.z, 0, 0.5);//c1.z);
     }
   }
   
   bvec3 c2 = lessThan(vec3(0.0), weight_acc.xyz);
-  FilterA = mix(vec3(0.0), weighted_a_acc.xyz / weight_acc.xyz, c2);
-  FilterB = mix(vec3(0.0), weighted_b_acc.xyz / weight_acc.xyz, c2);
+  FilterA = mix(vec3(0.0), weighted_a_acc.xyz / weight_acc.xyz, interpolation_a);
+  FilterB = mix(vec3(0.0), weighted_b_acc.xyz / weight_acc.xyz, interpolation_a);
   
   if(uv.x < 1 || uv.y < 1 || uv.x > 510 || uv.y > 422)
   {

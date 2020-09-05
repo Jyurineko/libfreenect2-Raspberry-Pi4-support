@@ -213,7 +213,7 @@ struct ShaderProgram : public WithOpenGLESBindings
             gl()->glGetShaderInfoLog(vertex_shader, sizeof(error_buffer), NULL, error_buffer);
             //glGetShaderInfoLog(vertex_shader, sizeof(error_buffer), NULL, error_buffer);
 
-            std::cerr << "(ES)failed to compile vertex shader!" << std::endl << error_buffer << std::endl;
+            std::cerr << "(in viewer.h)failed to compile vertex shader!" << std::endl << error_buffer << std::endl;
         }
 
         gl()->glCompileShader(fragment_shader);
@@ -227,7 +227,7 @@ struct ShaderProgram : public WithOpenGLESBindings
             gl()->glGetShaderInfoLog(fragment_shader, sizeof(error_buffer), NULL, error_buffer);
             //glGetShaderInfoLog(fragment_shader, sizeof(error_buffer), NULL, error_buffer);
 
-            std::cerr << "(ES)failed to compile fragment shader!" << std::endl << error_buffer << std::endl;
+            std::cerr << "(in viewer.h)failed to compile fragment shader!" << std::endl << error_buffer << std::endl;
         }
 
         program = gl()->glCreateProgram();
@@ -250,7 +250,7 @@ struct ShaderProgram : public WithOpenGLESBindings
         {
             gl()->glGetProgramInfoLog(program, sizeof(error_buffer), NULL, error_buffer);
             //glGetProgramInfoLog(program, sizeof(error_buffer), NULL, error_buffer);
-            std::cerr << "failed to link shader program!" << std::endl << error_buffer << std::endl;
+            std::cerr << "(in viewer.h)failed to link shader program!" << std::endl << error_buffer << std::endl;
         }
     }
 
