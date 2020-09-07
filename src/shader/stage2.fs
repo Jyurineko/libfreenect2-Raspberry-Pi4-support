@@ -1,4 +1,5 @@
 precision mediump float;
+precision highp sampler2D;
 
 struct Parameters
 {
@@ -77,7 +78,7 @@ void main(void)
   float ir_min = min(ir.x, min(ir.y, ir.z));
   float ir_max = max(ir.x, max(ir.y, ir.z));
   
-  float phase_final = 0;
+  float phase_final = 0.0;
   
   if(ir_min >= Params.individual_ab_threshold && ir_sum >= Params.ab_threshold)
   {
@@ -128,7 +129,7 @@ void main(void)
     float mask = t9 >= 0.0f ? 1.0f : 0.0f;
     t10 *= mask;
 
-    bool slope_positive = 0 < Params.ab_confidence_slope;
+    bool slope_positive = 0.0 < Params.ab_confidence_slope;
 
     float ir_x = slope_positive ? ir_min : ir_max;
 
@@ -159,7 +160,7 @@ void main(void)
 
   xmultiplier = (xmultiplier * 90.0) / (max_depth * max_depth * 8192.0);
 
-  float depth_fit = depth_linear / (-depth_linear * xmultiplier + 1);
+  float depth_fit = depth_linear / (-depth_linear * xmultiplier + 1.0);
   depth_fit = depth_fit < 0.0 ? 0.0 : depth_fit;
   
   Depth = cond1 ? depth_fit : depth_linear; // r1.y -> later r2.z

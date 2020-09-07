@@ -1,6 +1,6 @@
+#define GLFW_INCLUDE_ES31
 #include "flextGLES.h"
-#define GLFW_INCLUDE_ES3
-#define GLFW_INCLUDE_GLEXT
+//#define GLFW_INCLUDE_GLEXT
 #include "GLFW/glfw3.h"
 
 #ifdef __cplusplus

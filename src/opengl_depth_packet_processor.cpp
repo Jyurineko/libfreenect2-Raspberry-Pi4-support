@@ -31,7 +31,7 @@
 #include <libfreenect2/protocol/response.h>
 #include <libfreenect2/logging.h>
 
-#define GLFW_INCLUDE_ES3
+#define GLFW_INCLUDE_ES31
 #include "flextGLES.h"
 //#include "flextGL.h"
 #include <GLFW/glfw3.h>
@@ -159,13 +159,13 @@ struct ShaderProgram : public WithOpenGLESBindings
     }
   }
 
-  //use glsl in src/shader with "#version 300 es"
+  //use glsl in src/shader with "#version 310 es"
 
   void setVertexShader(const std::string& src)
   {
     checkMesaBug();
     //const GLchar *sources[] = {"#version 140\n", defines.c_str(), src.c_str()};
-    const GLchar* sources[] = { "#version 300 es\n", defines.c_str(), src.c_str() };
+    const GLchar* sources[] = { "#version 310 es\n", defines.c_str(), src.c_str() };
     vertex_shader = gl()->glCreateShader(GL_VERTEX_SHADER);
     gl()->glShaderSource(vertex_shader, 3, sources, NULL);
     //vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -177,7 +177,7 @@ struct ShaderProgram : public WithOpenGLESBindings
   {
     checkMesaBug();
     //const GLchar *sources[] = {"#version 140\n", defines.c_str(), src.c_str()};
-    const GLchar* sources[] = { "#version 300 es\n", defines.c_str(), src.c_str() };
+    const GLchar* sources[] = { "#version 310 es\n", defines.c_str(), src.c_str() };
     fragment_shader = gl()->glCreateShader(GL_FRAGMENT_SHADER);
     gl()->glShaderSource(fragment_shader, 3, sources, NULL);
     //fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);

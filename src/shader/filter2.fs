@@ -1,4 +1,6 @@
 precision mediump float;
+precision highp sampler2D;
+precision highp usampler2D;
 
 struct Parameters
 {
@@ -36,6 +38,7 @@ struct Parameters
 
 //uniform sampler2DRect DepthAndIrSum;
 //uniform usampler2DRect MaxEdgeTest;
+
 uniform sampler2D DepthAndIrSum;
 uniform usampler2D MaxEdgeTest;
 

@@ -10,7 +10,7 @@
 
 //#define GL_GLEXT_PROTOTYPES
 //#include "flextGL.h"
-#define GLFW_INCLUDE_ES3
+#define GLFW_INCLUDE_ES31
 #define GLFW_INCLUDE_GLEXT
 #include "flextGLES.h"
 #include <GLFW/glfw3.h>

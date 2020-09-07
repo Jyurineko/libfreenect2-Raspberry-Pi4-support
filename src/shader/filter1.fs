@@ -1,4 +1,5 @@
 precision mediump float;
+precision highp sampler2D;
 
 struct Parameters
 {
@@ -97,9 +98,9 @@ void applyBilateralFilter(ivec2 uv)
       weight_acc.xyz += weight;
       
       // TODO: this sucks, but otherwise opengl reports error: temporary registers exceeded :(
-      weighted_a_acc.w += mix(dist.x, 0, 0.5);//c1.x);
-      weighted_b_acc.w += mix(dist.y, 0, 0.5);//c1.y);
-      weight_acc.w += mix(dist.z, 0, 0.5);//c1.z);
+      weighted_a_acc.w += mix(dist.x, 0.0, 0.5);//c1.x);
+      weighted_b_acc.w += mix(dist.y, 0.0, 0.5);//c1.y);
+      weight_acc.w += mix(dist.z, 0.0, 0.5);//c1.z);
     }
   }
   
