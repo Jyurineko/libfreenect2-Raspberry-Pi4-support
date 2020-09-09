@@ -62,11 +62,13 @@ void Viewer::initialize()
         "    VertexOut.TexCoord = TexCoord;             \n"
         "}                                              \n";
 
+
+
     std::string grayfragmentshader = ""
         "#version 310 es                                                                    \n"
         "#extension GL_EXT_shader_io_blocks : enable                                        \n"
         "#extension GL_OES_shader_io_blocks : enable                                        \n"
-        "precision mediump float;                                                           \n"          
+        "precision highp float;                                                           \n"          
         "precision highp sampler2D;                                                         \n"
         "uniform sampler2D Data;                                                            \n"
         "vec4 tempColor;                                                                    \n"
@@ -81,11 +83,19 @@ void Viewer::initialize()
         "   Color = vec4(tempColor.x/4500.0, tempColor.x/4500.0, tempColor.x/4500.0, 1.0);  \n"
         "}                                                                                  \n";
 
+        /*input Data Color Format is BGRA, trying convert BGRA -> RGBA
+        but on raspberry can use GL_RGBA(after converting) 
+        or directly use GL_BGRA_EXT(without "Color = vec4(Color.bgr, 1.0); " converting)
+
+        in viewer.h 
+        typedef ImageFormat<4, GL_RGBA, GL_RGBA/GL_BGRA_EXT, GL_UNSIGNED_BYTE> F8C4;  */
+
+    
     std::string fragmentshader = ""
         "#version 310 es                                                            \n"
         "#extension GL_EXT_shader_io_blocks : enable                                \n"
         "#extension GL_OES_shader_io_blocks : enable                                \n"
-        "precision mediump float;                                                   \n"
+        "precision highp float;                                                   \n"
         "precision highp sampler2D;                                                 \n"
         "uniform sampler2D Data;                                                    \n"
         "in VertexData{                                                             \n"
@@ -96,6 +106,7 @@ void Viewer::initialize()
         "{                                                                          \n"
         "    ivec2 uv = ivec2(FragmentIn.TexCoord.x, FragmentIn.TexCoord.y);        \n"
         "    Color = texelFetch(Data, uv, 0);                                       \n"
+        "    Color = vec4(Color.bgr, 1.0);                                          \n"
         "}                                                                          \n";
 
     renderShader.setVertexShader(vertexshadersrc);
@@ -191,25 +202,15 @@ bool Viewer::render()
         gl()->glBindVertexArray(triangle_vao);
         gl()->glBindBuffer(GL_ARRAY_BUFFER, triangle_vbo);
         gl()->glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-        //glGenBuffers(1, &triangle_vbo);
-        //glGenVertexArrays(1, &triangle_vao);
-
-        //glBindVertexArray(triangle_vao);
-        //glBindBuffer(GL_ARRAY_BUFFER, triangle_vbo);
-        //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 
         GLint position_attr = renderShader.getAttributeLocation("Position");
         gl()->glVertexAttribPointer(position_attr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
         gl()->glEnableVertexAttribArray(position_attr);
-        //glVertexAttribPointer(position_attr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
-        //glEnableVertexAttribArray(position_attr);
 
         GLint texcoord_attr = renderShader.getAttributeLocation("TexCoord");
         gl()->glVertexAttribPointer(texcoord_attr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(2 * sizeof(float)));
         gl()->glEnableVertexAttribArray(texcoord_attr);
-        //glVertexAttribPointer(texcoord_attr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(2 * sizeof(float)));
-        //glEnableVertexAttribArray(texcoord_attr);
 
         if (iter->first == "RGB" || iter->first == "registered")
         {
@@ -238,8 +239,6 @@ bool Viewer::render()
 
         gl()->glDeleteBuffers(1, &triangle_vbo);
         gl()->glDeleteVertexArrays(1, &triangle_vao);
-        //glDeleteBuffers(1, &triangle_vbo);
-        //glDeleteVertexArrays(1, &triangle_vao);
 
     }
 

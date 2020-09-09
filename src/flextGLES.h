@@ -1479,8 +1479,6 @@ struct OpenGLESBindings
 };
 typedef struct OpenGLESBindings OpenGLESBindings;
 
-struct GLFWwindow;
-typedef struct GLFWwindow GLFWwindow;
 
 
 /* -------------------------- CATEGORY DEFINES ----------------------------- */
@@ -1502,7 +1500,7 @@ extern int FLEXT_KHR_context_flush_control;
 void flextESInit(OpenGLESBindings* esbindings);
 
 #define FLEXT_MAJOR_VERSION 3
-#define FLEXT_MINOR_VERSION 0
+#define FLEXT_MINOR_VERSION 1
 
 #ifdef __cplusplus
 }

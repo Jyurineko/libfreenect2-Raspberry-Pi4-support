@@ -7,8 +7,6 @@
 #include <string>
 #include <map>
 
-
-//#define GL_GLEXT_PROTOTYPES
 //#include "flextGL.h"
 #define GLFW_INCLUDE_ES31
 #define GLFW_INCLUDE_GLEXT
@@ -55,11 +53,11 @@ struct ImageFormat
 typedef ImageFormat<1, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE> U8C1;
 typedef ImageFormat<2, GL_R16I, GL_RED_INTEGER, GL_SHORT> S16C1;
 typedef ImageFormat<2, GL_R16UI, GL_RED_INTEGER, GL_UNSIGNED_SHORT> U16C1;
-typedef ImageFormat<4, GL_R32F, GL_RED, GL_FLOAT> F32C1;
+typedef ImageFormat<4, GL_R32F, GL_RED, GL_FLOAT> F32C1;    //IR
 typedef ImageFormat<8, GL_RG32F, GL_RG, GL_FLOAT> F32C2;
 typedef ImageFormat<12, GL_RGB32F, GL_RGB, GL_FLOAT> F32C3;
 //typedef ImageFormat<4, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE> F8C4;
-typedef ImageFormat<4, GL_RGBA, GL_BGRA_EXT, GL_UNSIGNED_BYTE> F8C4;
+typedef ImageFormat<4, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE> F8C4;    //RGB
 typedef ImageFormat<16, GL_RGBA32F, GL_RGBA, GL_FLOAT> F32C4;
 
 template<typename FormatT>
@@ -80,7 +78,6 @@ public:
     void bindToUnit(GLenum unit)
     {
         gl()->glActiveTexture(unit);
-        //glActiveTexture(unit);
         //glBindTexture(GL_TEXTURE_RECTANGLE, texture);
         glBindTexture(GL_TEXTURE_2D, texture);
     }
@@ -94,19 +91,14 @@ public:
 
         glGenTextures(1, &texture);
         bindToUnit(GL_TEXTURE0);
-        //glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        //glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-        //glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        //glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        //glTexImage2D(GL_TEXTURE_RECTANGLE, 0, FormatT::InternalFormat, width, height, 0, FormatT::Format, FormatT::Type, 0);
-        
-        //GL_CLAMP_TO_BORDER is legal in GL ES 3.2, here use GL ES 3.0
+
+        //GL_CLAMP_TO_BORDER is legal in GL ES 3.2, here use GL ES 3.1
+
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexImage2D(GL_TEXTURE_2D, 0, FormatT::InternalFormat, width, height, 0, FormatT::Format, FormatT::Type, 0);
-
     }
 
     void deallocate()
@@ -184,9 +176,7 @@ struct ShaderProgram : public WithOpenGLESBindings
         const char* src_ = src.c_str();
         int length_ = src.length();
         vertex_shader = gl()->glCreateShader(GL_VERTEX_SHADER);
-        //vertex_shader = glCreateShader(GL_VERTEX_SHADER);
         gl()->glShaderSource(vertex_shader, 1, &src_, &length_);
-        //glShaderSource(vertex_shader, 1, &src_, &length_);
     }
 
     void setFragmentShader(const std::string& src)
@@ -195,8 +185,6 @@ struct ShaderProgram : public WithOpenGLESBindings
         int length_ = src.length();
         fragment_shader = gl()->glCreateShader(GL_FRAGMENT_SHADER);
         gl()->glShaderSource(fragment_shader, 1, &src_, &length_);
-        //fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-        //glShaderSource(fragment_shader, 1, &src_, &length_);
     }
 
     void build()
@@ -205,29 +193,23 @@ struct ShaderProgram : public WithOpenGLESBindings
 
         gl()->glCompileShader(vertex_shader);
         gl()->glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &status);
-        //glCompileShader(vertex_shader);
-        //glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &status);
 
         if (status != GL_TRUE)
         {
             gl()->glGetShaderInfoLog(vertex_shader, sizeof(error_buffer), NULL, error_buffer);
-            //glGetShaderInfoLog(vertex_shader, sizeof(error_buffer), NULL, error_buffer);
 
-            std::cerr << "(in viewer.h)failed to compile vertex shader!" << std::endl << error_buffer << std::endl;
+            std::cerr << "(problem in viewer.h)failed to compile vertex shader!" << std::endl << error_buffer << std::endl;
         }
 
         gl()->glCompileShader(fragment_shader);
-        //glCompileShader(fragment_shader);
 
         gl()->glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &status);
-        //glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &status);
 
         if (status != GL_TRUE)
         {
             gl()->glGetShaderInfoLog(fragment_shader, sizeof(error_buffer), NULL, error_buffer);
-            //glGetShaderInfoLog(fragment_shader, sizeof(error_buffer), NULL, error_buffer);
 
-            std::cerr << "(in viewer.h)failed to compile fragment shader!" << std::endl << error_buffer << std::endl;
+            std::cerr << "(problem in viewer.h)failed to compile fragment shader!" << std::endl << error_buffer << std::endl;
         }
 
         program = gl()->glCreateProgram();
@@ -238,73 +220,54 @@ struct ShaderProgram : public WithOpenGLESBindings
 
         gl()->glGetProgramiv(program, GL_LINK_STATUS, &status);
 
-        //program = glCreateProgram();
-        //glAttachShader(program, vertex_shader);
-        //glAttachShader(program, fragment_shader);
-
-        //glLinkProgram(program);
-
-        //glGetProgramiv(program, GL_LINK_STATUS, &status);
-
         if (status != GL_TRUE)
         {
             gl()->glGetProgramInfoLog(program, sizeof(error_buffer), NULL, error_buffer);
-            //glGetProgramInfoLog(program, sizeof(error_buffer), NULL, error_buffer);
-            std::cerr << "(in viewer.h)failed to link shader program!" << std::endl << error_buffer << std::endl;
+            std::cerr << "(problem in viewer.h)failed to link shader program!" << std::endl << error_buffer << std::endl;
         }
     }
 
     GLint getAttributeLocation(const std::string& name)
     {
         return gl()->glGetAttribLocation(program, name.c_str());
-        //return glGetAttribLocation(program, name.c_str());
     }
 
     void setUniform(const std::string& name, GLint value)
     {
         GLint idx = gl()->glGetUniformLocation(program, name.c_str());
-        //GLint idx = glGetUniformLocation(program, name.c_str());
         if (idx == -1) return;
 
         gl()->glUniform1i(idx, value);
-        //glUniform1i(idx, value);
     }
 
     void setUniform(const std::string& name, GLfloat value)
     {
         GLint idx = gl()->glGetUniformLocation(program, name.c_str());
-        //GLint idx = glGetUniformLocation(program, name.c_str());
         if (idx == -1) return;
 
         gl()->glUniform1f(idx, value);
-        //glUniform1f(idx, value);
     }
 
     void setUniformVector3(const std::string& name, GLfloat value[3])
     {
         GLint idx = gl()->glGetUniformLocation(program, name.c_str());
-        //GLint idx = glGetUniformLocation(program, name.c_str());
 
         if (idx == -1) return;
 
         gl()->glUniform3fv(idx, 1, value);
-        //glUniform3fv(idx, 1, value);
     }
 
     void setUniformMatrix3(const std::string& name, GLfloat value[9])
     {
         GLint idx = gl()->glGetUniformLocation(program, name.c_str());
-        //GLint idx = glGetUniformLocation(program, name.c_str());
         if (idx == -1) return;
 
         gl()->glUniformMatrix3fv(idx, 1, false, value);
-        //glUniformMatrix3fv(idx, 1, false, value);
     }
 
     void use()
     {
         gl()->glUseProgram(program);
-        //glUseProgram(program);
     }
 };
 

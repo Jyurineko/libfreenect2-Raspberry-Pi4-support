@@ -1,4 +1,4 @@
-precision mediump float;
+precision highp float;
 precision highp sampler2D;
 precision highp usampler2D;
 
@@ -46,8 +46,11 @@ uniform Parameters Params;
 
 in vec2 TexCoord;
 
-/*layout(location = 0)*/ out vec4 Debug;
-/*layout(location = 1)*/ out float FilterDepth;
+// /*layout(location = 0)*/ out vec4 Debug;
+// /*layout(location = 1)*/ out float FilterDepth;
+
+layout(location = 0) out vec4 Debug;
+layout(location = 1) out float FilterDepth;
 
 void applyEdgeAwareFilter(ivec2 uv)
 {

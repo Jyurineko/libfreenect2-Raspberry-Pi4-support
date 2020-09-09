@@ -1,4 +1,4 @@
-precision mediump float;
+precision highp float;
 precision highp sampler2D;
 
 struct Parameters
@@ -48,10 +48,15 @@ uniform Parameters Params;
 
 in vec2 TexCoord;
 
-/*layout(location = 0)*/ out vec4 Debug;
-/*layout(location = 1)*/ out vec3 FilterA;
-/*layout(location = 2)*/ out vec3 FilterB;
-/*layout(location = 3)*/ out uint MaxEdgeTest;
+// /*layout(location = 0)*/ out vec4 Debug;
+// /*layout(location = 1)*/ out vec3 FilterA;
+// /*layout(location = 2)*/ out vec3 FilterB;
+// /*layout(location = 3)*/ out uint MaxEdgeTest;
+
+layout(location = 0) out vec4 Debug;
+layout(location = 1) out vec3 FilterA;
+layout(location = 2) out vec3 FilterB;
+layout(location = 3) out uint MaxEdgeTest;
 
 void applyBilateralFilter(ivec2 uv)
 {
@@ -70,7 +75,7 @@ void applyBilateralFilter(ivec2 uv)
   
   bvec3 c0 = lessThan(self_norm * self_norm, threshold);
   
-  float interpolation_a = 0.5;
+  float interpolation_a = 0.1;
   
   threshold = mix(threshold, vec3(0.0), interpolation_a);
   joint_bilateral_exp = mix(joint_bilateral_exp, vec3(0.0), interpolation_a);
