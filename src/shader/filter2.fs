@@ -49,8 +49,10 @@ in vec2 TexCoord;
 // /*layout(location = 0)*/ out vec4 Debug;
 // /*layout(location = 1)*/ out float FilterDepth;
 
-layout(location = 0) out vec4 Debug;
-layout(location = 1) out float FilterDepth;
+// layout(location = 0) out vec4 Debug;
+// layout(location = 1) out float FilterDepth;
+
+layout(location = 0) out float FilterDepth;
 
 void applyEdgeAwareFilter(ivec2 uv)
 {
@@ -136,5 +138,5 @@ void main(void)
   
   applyEdgeAwareFilter(uv);
   
-  Debug = vec4(vec3(FilterDepth / Params.max_depth), 1);
+  // Debug = vec4(vec3(FilterDepth / Params.max_depth), 1);
 }

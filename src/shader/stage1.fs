@@ -62,12 +62,17 @@ in vec2 TexCoord;
 // /*layout(location = 3)*/ out vec3 Norm;
 // /*layout(location = 4)*/ out float Infrared;
 
-layout(location = 0) out vec4 Debug;
-/*                    */
-layout(location = 1) out vec3 A;
-layout(location = 2) out vec3 B;
-layout(location = 3) out vec3 Norm;
-layout(location = 4) out float Infrared;
+// layout(location = 0) out vec4 Debug;
+// /*                    */
+// layout(location = 1) out vec3 A;
+// layout(location = 2) out vec3 B;
+// layout(location = 3) out vec3 Norm;
+// layout(location = 4) out float Infrared;
+
+layout(location = 0) out vec3 A;
+layout(location = 1) out vec3 B;
+layout(location = 2) out vec3 Norm;
+layout(location = 3) out float Infrared;
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -129,20 +134,21 @@ void main(void)
   //A    = mix(vec3(ab0.x, ab1.x, ab2.x), vec3(0.0), invalid_pixel);
   //B    = mix(vec3(ab0.y, ab1.y, ab2.y), vec3(0.0), invalid_pixel);
   
-  float interpolation_a = 0.5;
+  float interpolation_a = 0.1;
   
   A = mix(vec3(ab0.x, ab1.x, ab2.x), vec3(0.0), interpolation_a);
   B = mix(vec3(ab0.y, ab1.y, ab2.y), vec3(0.0), interpolation_a);
   
   Norm = sqrt(A * A + B * B);
   
-  A = mix(A, vec3(0.0), saturated);
-  B = mix(B, vec3(0.0), saturated);
+  A = mix(A, vec3(0.0), interpolation_a);
+  B = mix(B, vec3(0.0), interpolation_a);
   
-  //mix(Tx,Ty,bvec2) : true components in a select components from y, else from x
+  /*mix(Tx,Ty,bvec2) : true components in a select components from y, else from x*/
+
   //Infrared = min(dot(mix(Norm, vec3(65535.0), saturated), vec3(0.333333333  * Params.ab_multiplier * Params.ab_output_multiplier)), 65535.0);
   
   Infrared = min(dot(mix(Norm, vec3(65535.0), interpolation_a), vec3(0.333333333  * Params.ab_multiplier * Params.ab_output_multiplier)), 65535.0);
 
-  Debug = vec4(sqrt(vec3(Infrared / 65535.0)), 1.0);
+  // Debug = vec4(sqrt(vec3(Infrared / 65535.0)), 1.0);
 }

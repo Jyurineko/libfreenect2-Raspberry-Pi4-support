@@ -491,7 +491,7 @@ public:
 
     input_data.gl(b);
 
-    stage1_debug.gl(b);
+    //stage1_debug.gl(b);
     stage1_data[0].gl(b);
     stage1_data[1].gl(b);
     stage1_data[2].gl(b);
@@ -500,21 +500,21 @@ public:
     filter1_data[0].gl(b);
     filter1_data[1].gl(b);
     filter1_max_edge_test.gl(b);
-    filter1_debug.gl(b);
+    //filter1_debug.gl(b);
 
-    stage2_debug.gl(b);
+    //stage2_debug.gl(b);
 
     stage2_depth.gl(b);
     stage2_depth_and_ir_sum.gl(b);
 
-    filter2_debug.gl(b);
+    //filter2_debug.gl(b);
     filter2_depth.gl(b);
  
     stage1.gl(b);
     filter1.gl(b);
     stage2.gl(b);
     filter2.gl(b);
-    debug.gl(b);
+    //debug.gl(b);
   }
 
   static void glfwErrorCallback(int error, const char* description)
@@ -581,32 +581,42 @@ public:
 
     stage1.setVertexShader(loadShaderSource("default.vs"));
     stage1.setFragmentShader(loadShaderSource("stage1.fs"));
-    stage1.bindFragDataLocation("Debug", 0);
-    stage1.bindFragDataLocation("A", 1);
-    stage1.bindFragDataLocation("B", 2);
-    stage1.bindFragDataLocation("Norm", 3);
-    stage1.bindFragDataLocation("Infrared", 4);
+    //stage1.bindFragDataLocation("Debug", 0);
+    //stage1.bindFragDataLocation("A", 1);
+    //stage1.bindFragDataLocation("B", 2);
+    //stage1.bindFragDataLocation("Norm", 3);
+    //stage1.bindFragDataLocation("Infrared", 4);
+    stage1.bindFragDataLocation("A", 0);
+    stage1.bindFragDataLocation("B", 1);
+    stage1.bindFragDataLocation("Norm", 2);
+    stage1.bindFragDataLocation("Infrared", 3);
     stage1.build();
 
     filter1.setVertexShader(loadShaderSource("default.vs"));
     filter1.setFragmentShader(loadShaderSource("filter1.fs"));
-    filter1.bindFragDataLocation("Debug", 0);
-    filter1.bindFragDataLocation("FilterA", 1);
-    filter1.bindFragDataLocation("FilterB", 2);
-    filter1.bindFragDataLocation("MaxEdgeTest", 3);
+    //filter1.bindFragDataLocation("Debug", 0);
+    //filter1.bindFragDataLocation("FilterA", 1);
+    //filter1.bindFragDataLocation("FilterB", 2);
+    //filter1.bindFragDataLocation("MaxEdgeTest", 3);
+    filter1.bindFragDataLocation("FilterA", 0);
+    filter1.bindFragDataLocation("FilterB", 1);
+    filter1.bindFragDataLocation("MaxEdgeTest", 2);
     filter1.build();
 
     stage2.setVertexShader(loadShaderSource("default.vs"));
     stage2.setFragmentShader(loadShaderSource("stage2.fs"));
-    stage2.bindFragDataLocation("Debug", 0);
-    stage2.bindFragDataLocation("Depth", 1);
-    stage2.bindFragDataLocation("DepthAndIrSum", 2);
+    //stage2.bindFragDataLocation("Debug", 0);
+    //stage2.bindFragDataLocation("Depth", 1);
+    //stage2.bindFragDataLocation("DepthAndIrSum", 2);
+    stage2.bindFragDataLocation("Depth", 0);
+    stage2.bindFragDataLocation("DepthAndIrSum", 1);
     stage2.build();
 
     filter2.setVertexShader(loadShaderSource("default.vs"));
     filter2.setFragmentShader(loadShaderSource("filter2.fs"));
-    filter2.bindFragDataLocation("Debug", 0);
-    filter2.bindFragDataLocation("FilterDepth", 1);
+    //filter2.bindFragDataLocation("Debug", 0);
+    //filter2.bindFragDataLocation("FilterDepth", 1);
+    filter2.bindFragDataLocation("FilterDepth", 0);
     filter2.build();
 
     if(do_debug)
@@ -617,14 +627,22 @@ public:
       debug.build();
     }
 
-    GLenum debug_attachment = do_debug ? GL_COLOR_ATTACHMENT0 : GL_NONE;
+    //------------------------------------------------------------------------------------------------------------
+    /*Page 263 of the OpenGL ES 3.0 specification(Section 6.2 "State tables") 
+    specifies that the minimum value of GL_MAX_DRAW_BUFFERS is 4, 
+    meaning that implementations are effectively required to 
+    support up to four fragment shader outputs.*/
+    //--------------------------------------------------------------------------------------------------------------
+
+    //GLenum debug_attachment = do_debug ? GL_COLOR_ATTACHMENT0 : GL_NONE;
 
     gl()->glGenFramebuffers(1, &stage1_framebuffer);
     gl()->glBindFramebuffer(GL_FRAMEBUFFER, stage1_framebuffer);
 
-    const GLenum stage1_buffers[] = { debug_attachment, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
-    gl()->glDrawBuffers(5, stage1_buffers);
-    glReadBuffer(GL_COLOR_ATTACHMENT4);
+    const GLenum stage1_buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+    //gl()->glDrawBuffers(5, stage1_buffers);
+    gl()->glDrawBuffers(4, stage1_buffers);
+    glReadBuffer(GL_COLOR_ATTACHMENT3);     //for stage1_infrared.texture
 
     //if(do_debug) gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, stage1_debug.texture, 0);
     //gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_RECTANGLE, stage1_data[0].texture, 0);
@@ -632,18 +650,21 @@ public:
     //gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_RECTANGLE, stage1_data[2].texture, 0);
     //gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_RECTANGLE, stage1_infrared.texture, 0);
     if(do_debug) gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, stage1_debug.texture, 0);
-    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, stage1_data[0].texture, 0);
-    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, stage1_data[1].texture, 0);
-    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, stage1_data[2].texture, 0);
-    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, stage1_infrared.texture, 0);
+    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, stage1_data[0].texture, 0);
+    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, stage1_data[1].texture, 0);
+    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, stage1_data[2].texture, 0);
+    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, stage1_infrared.texture, 0);
 
     checkFBO(GL_FRAMEBUFFER);
+
+    //-------------------------------------------------------------------------------------------------------------
 
     gl()->glGenFramebuffers(1, &filter1_framebuffer);
     gl()->glBindFramebuffer(GL_FRAMEBUFFER, filter1_framebuffer);
 
-    const GLenum filter1_buffers[] = { debug_attachment, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
-    gl()->glDrawBuffers(4, filter1_buffers);
+    const GLenum filter1_buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    //gl()->glDrawBuffers(4, filter1_buffers);
+    gl()->glDrawBuffers(3, filter1_buffers);
     glReadBuffer(GL_NONE);
 
     //if(do_debug) gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, filter1_debug.texture, 0);
@@ -651,42 +672,50 @@ public:
     //gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_RECTANGLE, filter1_data[1].texture, 0);
     //gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_RECTANGLE, filter1_max_edge_test.texture, 0);
     if (do_debug) gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, filter1_debug.texture, 0);
-    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, filter1_data[0].texture, 0);
-    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, filter1_data[1].texture, 0);
-    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, filter1_max_edge_test.texture, 0);
+    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, filter1_data[0].texture, 0);
+    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, filter1_data[1].texture, 0);
+    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, filter1_max_edge_test.texture, 0);
 
     checkFBO(GL_FRAMEBUFFER);
+
+    //-------------------------------------------------------------------------------------------------------------
 
     gl()->glGenFramebuffers(1, &stage2_framebuffer);
     gl()->glBindFramebuffer(GL_FRAMEBUFFER, stage2_framebuffer);
 
-    const GLenum stage2_buffers[] = { debug_attachment, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-    gl()->glDrawBuffers(3, stage2_buffers);
-    glReadBuffer(GL_COLOR_ATTACHMENT1);
+    const GLenum stage2_buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    //gl()->glDrawBuffers(3, stage2_buffers);
+    gl()->glDrawBuffers(2, stage2_buffers);
+    glReadBuffer(GL_COLOR_ATTACHMENT0);     //for stage2_depth.texture
 
     //if(do_debug) gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, stage2_debug.texture, 0);
     //gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_RECTANGLE, stage2_depth.texture, 0);
     //gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_RECTANGLE, stage2_depth_and_ir_sum.texture, 0);
     if (do_debug) gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, stage2_debug.texture, 0);
-    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, stage2_depth.texture, 0);
-    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, stage2_depth_and_ir_sum.texture, 0);
+    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, stage2_depth.texture, 0);
+    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, stage2_depth_and_ir_sum.texture, 0);
 
     checkFBO(GL_FRAMEBUFFER);
+
+    //-------------------------------------------------------------------------------------------------------------
 
     gl()->glGenFramebuffers(1, &filter2_framebuffer);
     gl()->glBindFramebuffer(GL_FRAMEBUFFER, filter2_framebuffer);
 
 
-    const GLenum filter2_buffers[] = { debug_attachment, GL_COLOR_ATTACHMENT1 };
-    gl()->glDrawBuffers(2, filter2_buffers);
-    glReadBuffer(GL_COLOR_ATTACHMENT1);
+    const GLenum filter2_buffers[] = { GL_COLOR_ATTACHMENT0 };
+    //gl()->glDrawBuffers(2, filter2_buffers);
+    gl()->glDrawBuffers(1, filter2_buffers);
+    glReadBuffer(GL_COLOR_ATTACHMENT0);     //for filter2_depth.texture
 
     //if(do_debug) gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, filter2_debug.texture, 0);
     //gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_RECTANGLE, filter2_depth.texture, 0);
     if (do_debug) gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, filter2_debug.texture, 0);
-    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, filter2_depth.texture, 0);
+    gl()->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, filter2_depth.texture, 0);
     
     checkFBO(GL_FRAMEBUFFER);
+
+    //-------------------------------------------------------------------------------------------------------------
 
     Vertex bl = {-1.0f, -1.0f, 0.0f, 0.0f }, br = { 1.0f, -1.0f, 512.0f, 0.0f }, tl = {-1.0f, 1.0f, 0.0f, 424.0f }, tr = { 1.0f, 1.0f, 512.0f, 424.0f };
     Vertex vertices[] = {
@@ -782,7 +811,8 @@ public:
     if(ir != 0)
     {
       gl()->glBindFramebuffer(GL_READ_FRAMEBUFFER, stage1_framebuffer);
-      glReadBuffer(GL_COLOR_ATTACHMENT4);
+      //glReadBuffer(GL_COLOR_ATTACHMENT4);
+      glReadBuffer(GL_COLOR_ATTACHMENT3);
       *ir = stage1_infrared.downloadToNewFrame();
     }
 
@@ -853,7 +883,8 @@ public:
       if(depth != 0)
       {
         gl()->glBindFramebuffer(GL_READ_FRAMEBUFFER, filter2_framebuffer);
-        glReadBuffer(GL_COLOR_ATTACHMENT1);
+        //glReadBuffer(GL_COLOR_ATTACHMENT1);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
         *depth = filter2_depth.downloadToNewFrame();
       }
     }
@@ -862,7 +893,8 @@ public:
       if(depth != 0)
       {
         gl()->glBindFramebuffer(GL_READ_FRAMEBUFFER, stage2_framebuffer);
-        glReadBuffer(GL_COLOR_ATTACHMENT1);
+        //glReadBuffer(GL_COLOR_ATTACHMENT1);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
         *depth = stage2_depth.downloadToNewFrame();
       }
     }

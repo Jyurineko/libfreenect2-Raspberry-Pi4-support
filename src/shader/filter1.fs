@@ -53,10 +53,14 @@ in vec2 TexCoord;
 // /*layout(location = 2)*/ out vec3 FilterB;
 // /*layout(location = 3)*/ out uint MaxEdgeTest;
 
-layout(location = 0) out vec4 Debug;
-layout(location = 1) out vec3 FilterA;
-layout(location = 2) out vec3 FilterB;
-layout(location = 3) out uint MaxEdgeTest;
+// layout(location = 0) out vec4 Debug;
+// layout(location = 1) out vec3 FilterA;
+// layout(location = 2) out vec3 FilterB;
+// layout(location = 3) out uint MaxEdgeTest;
+
+layout(location = 0) out vec3 FilterA;
+layout(location = 1) out vec3 FilterB;
+layout(location = 2) out uint MaxEdgeTest;
 
 void applyBilateralFilter(ivec2 uv)
 {
@@ -133,5 +137,5 @@ void main(void)
   vec3 norm = sqrt(FilterA * FilterA + FilterB * FilterB);
   float i = min(dot(norm, vec3(0.333333333  * Params.ab_multiplier * Params.ab_output_multiplier)), 65535.0);
   
-  Debug = vec4(vec3(i, i, i) / 65535.0, 1);
+  // Debug = vec4(vec3(i, i, i) / 65535.0, 1.0);
 }

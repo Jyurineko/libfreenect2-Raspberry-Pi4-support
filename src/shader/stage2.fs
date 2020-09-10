@@ -53,9 +53,12 @@ in vec2 TexCoord;
 // /*layout(location = 1)*/ out float Depth;
 // /*layout(location = 2)*/ out vec2 DepthAndIrSum;
 
-layout(location = 0) out vec4 Debug;
-layout(location = 1) out float Depth;
-layout(location = 2) out vec2 DepthAndIrSum;
+// layout(location = 0) out vec4 Debug;
+// layout(location = 1) out float Depth;
+// layout(location = 2) out vec2 DepthAndIrSum;
+
+layout(location = 0) out float Depth;
+layout(location = 1) out vec2 DepthAndIrSum;
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -171,5 +174,5 @@ void main(void)
 
   DepthAndIrSum = vec2(Depth, ir_sum);
   
-  Debug = vec4(vec3(Depth / Params.max_depth), 1.0);
+  // Debug = vec4(vec3(Depth / Params.max_depth), 1.0);
 }
