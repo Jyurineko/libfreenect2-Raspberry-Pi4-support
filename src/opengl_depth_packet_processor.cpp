@@ -213,12 +213,12 @@ struct ShaderProgram : public WithOpenGLESBindings
     gl()->glAttachShader(program, vertex_shader);
     gl()->glAttachShader(program, fragment_shader);
 
-    for(FragDataMap::iterator it = frag_data_map_.begin(); it != frag_data_map_.end(); ++it)
-    {
-      //gl()->glBindFragDataLocation(program, it->second, it->first.c_str());
-        //glBindFragDataLocation(program, it->second, it->first.c_str());
-        
-    }
+    //for(FragDataMap::iterator it = frag_data_map_.begin(); it != frag_data_map_.end(); ++it)
+    //{
+    //  //gl()->glBindFragDataLocation(program, it->second, it->first.c_str());
+    //    //glBindFragDataLocation(program, it->second, it->first.c_str());
+    //    
+    //}
 
     gl()->glLinkProgram(program);
 
@@ -289,13 +289,14 @@ struct ImageFormat
   static const GLenum Type = TType;
 };
 
-typedef ImageFormat<1, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE> U8C1;
-typedef ImageFormat<2, GL_R16I, GL_RED_INTEGER, GL_SHORT> S16C1;
-typedef ImageFormat<2, GL_R16UI, GL_RED_INTEGER, GL_UNSIGNED_SHORT> U16C1;
-typedef ImageFormat<4, GL_R32F, GL_RED, GL_FLOAT> F32C1;
-typedef ImageFormat<8, GL_RG32F, GL_RG, GL_FLOAT> F32C2;
+typedef ImageFormat<1, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE> U8C1;//filter1_max_edge_test
+typedef ImageFormat<2, GL_R16I, GL_RED_INTEGER, GL_SHORT> S16C1;//lut11to16
+typedef ImageFormat<2, GL_R16UI, GL_RED_INTEGER, GL_UNSIGNED_SHORT> U16C1;//p0table[3]/input_data
+typedef ImageFormat<4, GL_R32F, GL_RED, GL_FLOAT> F32C1;  //x_table,z_table/stage1_infrared/stage2_depth/filter2_depth
+typedef ImageFormat<8, GL_RG32F, GL_RG, GL_FLOAT> F32C2;    //stage2_depth_and_ir_sum
 typedef ImageFormat<12, GL_RGB32F, GL_RGB, GL_FLOAT> F32C3;
-typedef ImageFormat<16, GL_RGBA32F, GL_RGBA, GL_FLOAT> F32C4;
+typedef ImageFormat<16, GL_RGBA32F, GL_RGBA, GL_FLOAT> F32C4;//stage1_data[3]/filter1_data[2]/
+
 
 template<typename FormatT>
 struct Texture : public WithOpenGLESBindings
@@ -563,7 +564,7 @@ public:
     for(int i = 0; i < 3; ++i)
       stage1_data[i].allocate(512, 424);
 
-    if(do_debug) stage1_debug.allocate(512, 424);
+    //if(do_debug) stage1_debug.allocate(512, 424);
     stage1_infrared.allocate(512, 424);
 
     for(int i = 0; i < 2; ++i)
@@ -589,7 +590,7 @@ public:
     stage1.bindFragDataLocation("A", 0);
     stage1.bindFragDataLocation("B", 1);
     stage1.bindFragDataLocation("Norm", 2);
-    stage1.bindFragDataLocation("Infrared", 3);
+    stage1.bindFragDataLocation("Infrared", 3);     //IR stream
     stage1.build();
 
     filter1.setVertexShader(loadShaderSource("default.vs"));
@@ -812,7 +813,7 @@ public:
     {
       gl()->glBindFramebuffer(GL_READ_FRAMEBUFFER, stage1_framebuffer);
       //glReadBuffer(GL_COLOR_ATTACHMENT4);
-      glReadBuffer(GL_COLOR_ATTACHMENT3);
+      glReadBuffer(GL_COLOR_ATTACHMENT3);   //for stage1_infrared.texture
       *ir = stage1_infrared.downloadToNewFrame();
     }
 
@@ -884,7 +885,7 @@ public:
       {
         gl()->glBindFramebuffer(GL_READ_FRAMEBUFFER, filter2_framebuffer);
         //glReadBuffer(GL_COLOR_ATTACHMENT1);
-        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);     //for filter2_depth.texture
         *depth = filter2_depth.downloadToNewFrame();
       }
     }
@@ -894,7 +895,7 @@ public:
       {
         gl()->glBindFramebuffer(GL_READ_FRAMEBUFFER, stage2_framebuffer);
         //glReadBuffer(GL_COLOR_ATTACHMENT1);
-        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);     //for stage2_depth.texture
         *depth = stage2_depth.downloadToNewFrame();
       }
     }

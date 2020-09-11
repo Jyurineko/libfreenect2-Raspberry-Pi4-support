@@ -16,7 +16,7 @@ PROJECT(libfreenect2_examples)
 SET(MY_DIR ${libfreenect2_examples_SOURCE_DIR})
 SET(DEPENDS_DIR "${MY_DIR}/../depends" CACHE STRING "Dependency directory")
 
-OPTION(ENABLE_OPENGL "Enable OpenGL support" ON)
+OPTION(ENABLE_OPENGL_AS_ES31 "Enable OpenGL as ES31 support" ON)
 
 # The example build system is standalone and will work out-of-tree with these files copied
 SET(freenect2_ROOT_DIR ${MY_DIR}/..)
@@ -54,7 +54,7 @@ SET(Protonect_DLLS
   ${freenect2_DLLS}
 )
 
-IF(ENABLE_OPENGL)
+IF(ENABLE_OPENGL_AS_ES31)
   FIND_PACKAGE(GLFW3)
   FIND_PACKAGE(OpenGL)
   IF(GLFW3_FOUND AND OPENGL_FOUND)
@@ -76,7 +76,7 @@ IF(ENABLE_OPENGL)
     )
     ADD_DEFINITIONS(-DEXAMPLES_WITH_OPENGL_SUPPORT=1)
   ENDIF()
-ENDIF(ENABLE_OPENGL)
+ENDIF(ENABLE_OPENGL_AS_ES31)
 
 ADD_EXECUTABLE(Protonect
   ${Protonect_src}

@@ -43,7 +43,6 @@ uniform sampler2D A;
 uniform sampler2D B;
 uniform sampler2D Norm;
 
-
 uniform Parameters Params;
 
 in vec2 TexCoord;
@@ -52,11 +51,6 @@ in vec2 TexCoord;
 // /*layout(location = 1)*/ out vec3 FilterA;
 // /*layout(location = 2)*/ out vec3 FilterB;
 // /*layout(location = 3)*/ out uint MaxEdgeTest;
-
-// layout(location = 0) out vec4 Debug;
-// layout(location = 1) out vec3 FilterA;
-// layout(location = 2) out vec3 FilterB;
-// layout(location = 3) out uint MaxEdgeTest;
 
 layout(location = 0) out vec3 FilterA;
 layout(location = 1) out vec3 FilterB;
@@ -79,10 +73,13 @@ void applyBilateralFilter(ivec2 uv)
   
   bvec3 c0 = lessThan(self_norm * self_norm, threshold);
   
-  float interpolation_a = 0.1;
+  // float interpolation_a = 0.1;
   
-  threshold = mix(threshold, vec3(0.0), interpolation_a);
-  joint_bilateral_exp = mix(joint_bilateral_exp, vec3(0.0), interpolation_a);
+  threshold = mix(threshold, vec3(0.0), c0);
+  joint_bilateral_exp = mix(joint_bilateral_exp, vec3(0.0), c0);
+
+  // threshold = mix(threshold, vec3(0.0), interpolation_a);
+  // joint_bilateral_exp = mix(joint_bilateral_exp, vec3(0.0), interpolation_a);
   
   for(int y = 0; y < 3; ++y)
   {
@@ -100,22 +97,25 @@ void applyBilateralFilter(ivec2 uv)
       bvec3 c1 = lessThan(other_norm * other_norm, threshold);
       
       vec3 dist = 0.5f * (1.0f - (self_normalized_a * other_normalized_a + self_normalized_b * other_normalized_b));
-      vec3 weight = mix(Params.gaussian_kernel[x][y] * exp(-1.442695 * joint_bilateral_exp * dist), vec3(0.0), interpolation_a);
+      vec3 weight = mix(Params.gaussian_kernel[x][y] * exp(-1.442695 * joint_bilateral_exp * dist), vec3(0.0), c1);
+      // vec3 weight = mix(Params.gaussian_kernel[x][y] * exp(-1.442695 * joint_bilateral_exp * dist), vec3(0.0), interpolation_a);
       
       weighted_a_acc.xyz += weight * other_a;
       weighted_b_acc.xyz += weight * other_b;
       weight_acc.xyz += weight;
       
       // TODO: this sucks, but otherwise opengl reports error: temporary registers exceeded :(
-      weighted_a_acc.w += mix(dist.x, 0.0, 0.5);//c1.x);
-      weighted_b_acc.w += mix(dist.y, 0.0, 0.5);//c1.y);
-      weight_acc.w += mix(dist.z, 0.0, 0.5);//c1.z);
+      weighted_a_acc.w += mix(dist.x, 0.0, c1.x);
+      weighted_b_acc.w += mix(dist.y, 0.0, c1.y);
+      weight_acc.w += mix(dist.z, 0.0, c1.z);
     }
   }
   
   bvec3 c2 = lessThan(vec3(0.0), weight_acc.xyz);
-  FilterA = mix(vec3(0.0), weighted_a_acc.xyz / weight_acc.xyz, interpolation_a);
-  FilterB = mix(vec3(0.0), weighted_b_acc.xyz / weight_acc.xyz, interpolation_a);
+  FilterA = mix(vec3(0.0), weighted_a_acc.xyz / weight_acc.xyz, c2);
+  FilterB = mix(vec3(0.0), weighted_b_acc.xyz / weight_acc.xyz, c2);
+  // FilterA = mix(vec3(0.0), weighted_a_acc.xyz / weight_acc.xyz, interpolation_a);
+  // FilterB = mix(vec3(0.0), weighted_b_acc.xyz / weight_acc.xyz, interpolation_a);
   
   if(uv.x < 1 || uv.y < 1 || uv.x > 510 || uv.y > 422)
   {

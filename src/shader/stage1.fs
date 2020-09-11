@@ -62,13 +62,6 @@ in vec2 TexCoord;
 // /*layout(location = 3)*/ out vec3 Norm;
 // /*layout(location = 4)*/ out float Infrared;
 
-// layout(location = 0) out vec4 Debug;
-// /*                    */
-// layout(location = 1) out vec3 A;
-// layout(location = 2) out vec3 B;
-// layout(location = 3) out vec3 Norm;
-// layout(location = 4) out float Infrared;
-
 layout(location = 0) out vec3 A;
 layout(location = 1) out vec3 B;
 layout(location = 2) out vec3 Norm;
@@ -130,25 +123,20 @@ void main(void)
   valid_pixel = valid_pixel ? true : false;
 #endif
   bvec3 invalid_pixel = bvec3(!valid_pixel);
+    
+  // float interpolation_a = 0.1;   //if using GLES 3.0, have no function mix(a,b,boolean), instead mix(a,b, float) 
+  //GLES 3.1 has fitable mix(a,b,boolean)
   
-  //A    = mix(vec3(ab0.x, ab1.x, ab2.x), vec3(0.0), invalid_pixel);
-  //B    = mix(vec3(ab0.y, ab1.y, ab2.y), vec3(0.0), invalid_pixel);
-  
-  float interpolation_a = 0.1;
-  
-  A = mix(vec3(ab0.x, ab1.x, ab2.x), vec3(0.0), interpolation_a);
-  B = mix(vec3(ab0.y, ab1.y, ab2.y), vec3(0.0), interpolation_a);
+  A = mix(vec3(ab0.x, ab1.x, ab2.x), vec3(0.0), invalid_pixel);
+  B = mix(vec3(ab0.y, ab1.y, ab2.y), vec3(0.0), invalid_pixel);
   
   Norm = sqrt(A * A + B * B);
   
-  A = mix(A, vec3(0.0), interpolation_a);
-  B = mix(B, vec3(0.0), interpolation_a);
+  A = mix(A, vec3(0.0), saturated);
+  B = mix(B, vec3(0.0), saturated);
   
-  /*mix(Tx,Ty,bvec2) : true components in a select components from y, else from x*/
 
-  //Infrared = min(dot(mix(Norm, vec3(65535.0), saturated), vec3(0.333333333  * Params.ab_multiplier * Params.ab_output_multiplier)), 65535.0);
+  Infrared = min(dot(mix(Norm, vec3(65535.0), saturated), vec3(0.333333333  * Params.ab_multiplier * Params.ab_output_multiplier)), 65535.0);
   
-  Infrared = min(dot(mix(Norm, vec3(65535.0), interpolation_a), vec3(0.333333333  * Params.ab_multiplier * Params.ab_output_multiplier)), 65535.0);
-
   // Debug = vec4(sqrt(vec3(Infrared / 65535.0)), 1.0);
 }

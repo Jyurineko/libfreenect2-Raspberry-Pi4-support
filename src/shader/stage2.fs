@@ -53,10 +53,6 @@ in vec2 TexCoord;
 // /*layout(location = 1)*/ out float Depth;
 // /*layout(location = 2)*/ out vec2 DepthAndIrSum;
 
-// layout(location = 0) out vec4 Debug;
-// layout(location = 1) out float Depth;
-// layout(location = 2) out vec2 DepthAndIrSum;
-
 layout(location = 0) out float Depth;
 layout(location = 1) out vec2 DepthAndIrSum;
 
@@ -71,13 +67,13 @@ void main(void)
   
   vec3 phase = atan(b, a);
   
-  float interpolation_a = 0.1;
+  // float interpolation_a = 0.1;
   
-  //phase = mix(phase, phase + 2.0 * M_PI, lessThan(phase, vec3(0.0)));
-  //phase = mix(phase, vec3(0.0), isnan(phase));
+  phase = mix(phase, phase + 2.0 * M_PI, lessThan(phase, vec3(0.0)));
+  phase = mix(phase, vec3(0.0), isnan(phase));
   
-  phase = mix(phase, phase + 2.0 * M_PI, interpolation_a);
-  phase = mix(phase, vec3(0.0), interpolation_a);
+  // phase = mix(phase, phase + 2.0 * M_PI, interpolation_a);
+  // phase = mix(phase, vec3(0.0), interpolation_a);
   
   vec3 ir = sqrt(a * a + b * b) * Params.ab_multiplier;
   

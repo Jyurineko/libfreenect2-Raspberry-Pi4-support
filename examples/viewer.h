@@ -50,6 +50,8 @@ struct ImageFormat
     static const GLenum Type = TType;
 };
 
+//[RGB]the viewer expects BGRA format.Doing conversion from RGBA to BGRA for the viewer
+
 typedef ImageFormat<1, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE> U8C1;
 typedef ImageFormat<2, GL_R16I, GL_RED_INTEGER, GL_SHORT> S16C1;
 typedef ImageFormat<2, GL_R16UI, GL_RED_INTEGER, GL_UNSIGNED_SHORT> U16C1;
@@ -57,7 +59,7 @@ typedef ImageFormat<4, GL_R32F, GL_RED, GL_FLOAT> F32C1;    //IR
 typedef ImageFormat<8, GL_RG32F, GL_RG, GL_FLOAT> F32C2;
 typedef ImageFormat<12, GL_RGB32F, GL_RGB, GL_FLOAT> F32C3;
 //typedef ImageFormat<4, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE> F8C4;
-typedef ImageFormat<4, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE> F8C4;    //RGB
+typedef ImageFormat<4, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE> F8C4;    //RGB (with Converting or not)
 typedef ImageFormat<16, GL_RGBA32F, GL_RGBA, GL_FLOAT> F32C4;
 
 template<typename FormatT>

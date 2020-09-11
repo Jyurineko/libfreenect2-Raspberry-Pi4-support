@@ -83,12 +83,12 @@ void Viewer::initialize()
         "   Color = vec4(tempColor.x/4500.0, tempColor.x/4500.0, tempColor.x/4500.0, 1.0);  \n"
         "}                                                                                  \n";
 
-        /*input Data Color Format is BGRA, trying convert BGRA -> RGBA
-        but on raspberry can use GL_RGBA(after converting) 
-        or directly use GL_BGRA_EXT(without "Color = vec4(Color.bgr, 1.0); " converting)
+    /*input Data Color Format is BGRA, trying convert BGRA -> RGBA
+    but on raspberry can use GL_RGBA(after converting) 
+    or directly use GL_BGRA_EXT(without "Color = vec4(Color.bgr, 1.0); " converting)
 
-        in viewer.h 
-        typedef ImageFormat<4, GL_RGBA, GL_RGBA/GL_BGRA_EXT, GL_UNSIGNED_BYTE> F8C4;  */
+    in viewer.h 
+    typedef ImageFormat<4, GL_RGBA, GL_RGBA/GL_BGRA_EXT, GL_UNSIGNED_BYTE> F8C4;  */
 
     
     std::string fragmentshader = ""
@@ -106,7 +106,7 @@ void Viewer::initialize()
         "{                                                                          \n"
         "    ivec2 uv = ivec2(FragmentIn.TexCoord.x, FragmentIn.TexCoord.y);        \n"
         "    Color = texelFetch(Data, uv, 0);                                       \n"
-        "    Color = vec4(Color.bgr, 1.0);                                          \n"
+        "    Color = vec4(Color.bgr, 1.0);                                          \n" //Convert BGRA -> RGBA
         "}                                                                          \n";
 
     renderShader.setVertexShader(vertexshadersrc);
@@ -223,7 +223,6 @@ bool Viewer::render()
             glDrawArrays(GL_TRIANGLES, 0, 6);
 
             rgb.deallocate();
-
         }
         else
         {
@@ -234,6 +233,7 @@ bool Viewer::render()
             ir.flipY();
             ir.upload();
             glDrawArrays(GL_TRIANGLES, 0, 6);
+            
             ir.deallocate();
         }
 
