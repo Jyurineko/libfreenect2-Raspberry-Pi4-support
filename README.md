@@ -3,6 +3,8 @@
  code is the same. So~~
  
  on Raspberry Pi 4 you can directly use with cmake-gui :)
+# Known solution to display problem
+better using single one monitor directly connection, don't use vnc, it may cause many problem
 # Tutorial 
  ### Here a short setup description for Debian (Buster) 32/64-bit by @busybeaver42:<br>
  sudo nano /boot/config.txt<br>
